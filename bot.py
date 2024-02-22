@@ -44,11 +44,12 @@ async def on_message(message):
     except:
         print("")
     channel = bot.get_channel(message.channel.id)
-    msg = message.content.replace(" ","")
+    msg = message.content
+    msg = get_zhuyin(msg)
+    msg = msg.replace(" ","").replace("ㄕ","ㄙ").replace("ㄔ","ㄙ").replace("ㄘ","ㄙ")
     # if str(message.author.id) == "609563252443316258":
     #     await message.add_reaction("<:threeColorShit:1209517222834217010>")
-    zhuyin_message = get_zhuyin(msg)
-    if "ㄙㄢㄙㄜˋㄉㄡˋ" in zhuyin_message:
+    if "ㄙㄢㄙㄜˋㄉㄡˋ" or "ㄙㄢㄐㄧㄉㄡˋ" in msg:
         pic = discord.File('pic/三色豆廚餘.png')
         await message.add_reaction("<:threeColorShit:1209517222834217010>")
         await channel.send(f"{message.author.mention}三色豆就該待在廚餘桶")
