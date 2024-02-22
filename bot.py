@@ -49,7 +49,8 @@ async def on_message(message):
     msg = msg.replace(" ","").replace("ㄕ","ㄙ").replace("ㄔ","ㄙ").replace("ㄘ","ㄙ")
     # if str(message.author.id) == "609563252443316258":
     #     await message.add_reaction("<:threeColorShit:1209517222834217010>")
-    if "ㄙㄢㄙㄜˋㄉㄡˋ" or "ㄙㄢㄐㄧㄉㄡˋ" in msg:
+    if "ㄙㄢㄙㄜˋㄉㄡˋ" in msg or "ㄙㄢㄐㄧㄉㄡˋ" in msg:
+        print("三色豆警告")
         pic = discord.File('pic/三色豆廚餘.png')
         await message.add_reaction("<:threeColorShit:1209517222834217010>")
         await channel.send(f"{message.author.mention}三色豆就該待在廚餘桶")

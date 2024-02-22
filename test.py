@@ -9,6 +9,7 @@ def get_zhuyin(text):
     return zhuyin
 
 # 測試
-text = "嘇澀逗"
+text = "抓錯人啦 警官"
 zhuyin = get_zhuyin(text)
-print(zhuyin)  # Output: 'ㄋㄧˇㄏㄠˇ'
+msg = zhuyin.replace(" ","").replace("ㄕ","ㄙ").replace("ㄔ","ㄙ").replace("ㄘ","ㄙ")
+print(msg)  # Output: 'ㄋㄧˇㄏㄠˇ'
