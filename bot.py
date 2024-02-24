@@ -46,7 +46,7 @@ async def on_message(message):
     channel = bot.get_channel(message.channel.id)
     msg = message.content
     msg = get_zhuyin(msg)
-    msg = msg.replace(" ","").replace("ㄕ","ㄙ").replace("ㄔ","ㄙ").replace("ㄘ","ㄙ")
+    msg = msg.replace(" ","").replace("ㄕ","ㄙ").replace("ㄔ","ㄙ").replace("ㄘ","ㄙ").replace("🟩","🟢").replace("🟧","🟠").replace("🟨","🟡")
     # if str(message.author.id) == "609563252443316258":
     #     await message.add_reaction("<:threeColorShit:1209517222834217010>")
     if "ㄙㄢㄙㄜˋㄉㄡˋ" in msg or "ㄙㄢㄐㄧㄉㄡˋ" in msg:
@@ -55,7 +55,8 @@ async def on_message(message):
         await message.add_reaction("<:threeColorShit:1209517222834217010>")
         await channel.send(f"{message.author.mention}三色豆就該待在廚餘桶")
         await channel.send(file= pic)
-    if "🟢🟡🟠" in msg:
+    threeColorSet = {'🟢', '🟡', '🟠'}
+    if threeColorSet.intersection(msg) == threeColorSet:
         await message.add_reaction("<:threeColorShit:1209517222834217010>")
         await channel.send(f"{message.author.mention}記違規1點")
     if "🥟" in msg:
