@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import json
 import pytz
+import asyncio
 from datetime import datetime, timedelta
 from pypinyin import pinyin, Style
 
@@ -12,6 +13,7 @@ intents = discord.Intents.default()
 intents.members = True
 bot = commands.Bot(command_prefix= "/", intents=intents)
 channels = 954950144686710837
+threeColorTemp = "good"
 
 # 將 UTC 時間轉換為台灣時間
 def utc_to_taiwan(utc_dt):
@@ -24,6 +26,23 @@ def get_zhuyin(text):
     zhuyin_list = pinyin(text, style=Style.BOPOMOFO)
     zhuyin = ''.join([p[0] for p in zhuyin_list])
     return zhuyin
+
+def add_violation_point(member):
+    point = 1
+    with open("violation_points.json", "r", encoding="utf8") as f:
+        member_points = json.load(f)
+        f.close()
+    if not(member in member_points):
+        member_points[member] = 1
+    else:
+        member_points[member] += 1
+        point = member_points[member]
+        if point >= 3:
+            member_points[member] = 0
+    with open("violation_points.json", "w", encoding="utf8") as f:
+        json.dump(member_points, f)
+        f.close()
+    return point
 
 @bot.event
 async def on_ready():
@@ -43,10 +62,12 @@ async def on_message(message):
             return
     except:
         print("")
+    #await message.author.edit(send_messages=False)
     channel = bot.get_channel(message.channel.id)
+    #await message.channel.set_permissions(message.author, send_messages=False)
     msg = message.content
     msg = get_zhuyin(msg)
-    msg = msg.replace(" ","").replace("ㄕ","ㄙ").replace("ㄔ","ㄙ").replace("ㄘ","ㄙ").replace("🟩","🟢").replace("🟧","🟠").replace("🟨","🟡")
+    msg = msg.replace(" ","").replace("ㄕ","ㄙ").replace("ㄔ","ㄙ").replace("ㄘ","ㄙ").replace("🟩","🟢").replace("🟧","🟠").replace("🟨","🟡").replace("🥕", "🟠").replace("🫛", "🟢").replace("🌽", "🟡").replace("🔶", "🟠")
     # if str(message.author.id) == "609563252443316258":
     #     await message.add_reaction("<:threeColorShit:1209517222834217010>")
     if "ㄙㄢㄙㄜˋㄉㄡˋ" in msg or "ㄙㄢㄐㄧㄉㄡˋ" in msg:
@@ -55,17 +76,36 @@ async def on_message(message):
         await message.add_reaction("<:threeColorShit:1209517222834217010>")
         await channel.send(f"{message.author.mention}三色豆就該待在廚餘桶")
         await channel.send(file= pic)
+    global threeColorTemp
     threeColorSet = {'🟢', '🟡', '🟠'}
+    point = 0
+    member = message.author.mention
     if threeColorSet.intersection(msg) == threeColorSet:
         await message.add_reaction("<:threeColorShit:1209517222834217010>")
         await channel.send(f"{message.author.mention}記違規1點")
+        point = add_violation_point(member)
+    elif "🟢" in msg or "🟡" in msg or "🟠" in msg:
+        threeColorTemp += msg
+        if threeColorSet.intersection(threeColorTemp) == threeColorSet:
+            await message.add_reaction("<:threeColorShit:1209517222834217010>")
+            await channel.send(f"{message.author.mention}記違規1點")
+            point = add_violation_point(member)
+            threeColorTemp = ""
+    else:
+        threeColorTemp = ""
+
+    if point >= 3:
+        await channel.send(f"臭雞雞成員{member}累積違規點10點，送入600監獄")
+        await message.channel.set_permissions(message.author, send_messages=False)
+        await asyncio.sleep(600)
+        await message.channel.set_permissions(message.author, send_messages=True)
     if "🥟" in msg:
         await message.add_reaction("🥟")
     
-@bot.event
-async def on_reaction_add(reaction, user):
-    print(reaction)
-    print(user)
+# @bot.event
+# async def on_reaction_add(reaction, user):
+#     print(reaction)
+#     print(user)
 
 @bot.event
 async def on_member_join(member):
@@ -114,5 +154,15 @@ async def 三色豆風險(ctx):
     risk = open('三色豆廢文/三色豆風險.txt', 'r', encoding='utf8')
     await ctx.send(risk.read())
     risk.close()
+
+@bot.command()
+async def 違規點數(ctx):
+    good = "臭雞雞聯盟違規點紀錄:\n"
+    with open("violation_points.json", "r") as f:
+        member_points = json.load(f)
+        f.close()
+    for i in member_points:
+        good += f"{i}　{member_points[i]}點\n"
+    await ctx.send(good)
 
 bot.run(jdata['TOKEN'])
