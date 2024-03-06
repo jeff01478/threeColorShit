@@ -51,6 +51,8 @@ async def on_ready():
     print(user_id)
     channel = bot.get_channel(channels)
     await channel.send("三色豆警察成功啟動")
+    channel = bot.get_channel(1212283360207044638)
+    await channel.send(f"三色豆警察啟動  {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
 @bot.event
 async def on_message(message):
@@ -67,11 +69,13 @@ async def on_message(message):
     #await message.channel.set_permissions(message.author, send_messages=False)
     msg = message.content
     msg = get_zhuyin(msg)
-    msg = msg.replace(" ","").replace("ㄕ","ㄙ").replace("ㄔ","ㄙ").replace("ㄘ","ㄙ").replace("🟩","🟢").replace("🟧","🟠").replace("🟨","🟡").replace("🥕", "🟠").replace("🫛", "🟢").replace("🌽", "🟡").replace("🔶", "🟠")
+    msg = msg.replace(" ","").replace("ˉ", "").replace("ㄕ","ㄙ").replace("ㄔ","ㄙ").replace("ㄘ","ㄙ").replace("ㄨ", "").replace("🟩","🟢").replace("🟧","🟠").replace("🟨","🟡").replace("🥕", "🟠").replace("🫛", "🟢").replace("🌽", "🟡").replace("🔶", "🟠")
     # if str(message.author.id) == "609563252443316258":
     #     await message.add_reaction("<:threeColorShit:1209517222834217010>")
     if "ㄙㄢㄙㄜˋㄉㄡˋ" in msg or "ㄙㄢㄐㄧㄉㄡˋ" in msg:
         print("三色豆警告")
+        pic = discord.File('pic/talkmeme.png')
+        await channel.send(file= pic)
         pic = discord.File('pic/三色豆廚餘.png')
         await message.add_reaction("<:threeColorShit:1209517222834217010>")
         await channel.send(f"{message.author.mention}三色豆就該待在廚餘桶")
@@ -95,9 +99,9 @@ async def on_message(message):
         threeColorTemp = ""
 
     if point >= 3:
-        await channel.send(f"臭雞雞成員{member}累積違規點10點，送入600監獄")
+        await channel.send(f"臭雞雞成員{member}累積違規點3點，送入3600監獄")
         await message.channel.set_permissions(message.author, send_messages=False)
-        await asyncio.sleep(600)
+        await asyncio.sleep(3600)
         await message.channel.set_permissions(message.author, send_messages=True)
     if "🥟" in msg:
         await message.add_reaction("🥟")
@@ -164,5 +168,29 @@ async def 違規點數(ctx):
     for i in member_points:
         good += f"{i}　{member_points[i]}點\n"
     await ctx.send(good)
+
+@bot.command()
+async def 違規記點(ctx, member: discord.Member):
+    roles = ctx.author.roles
+    for role in roles:
+        if role.id == 1210887108550590524:
+            point = add_violation_point(member.mention)
+            await ctx.send(f"{member.mention}記違規點1點")
+            if point >= 3:
+                await ctx.send(f"臭雞雞成員{member.mention}累積違規點3點，送入3600監獄")
+                await ctx.channel.set_permissions(member, send_messages=False)
+                await asyncio.sleep(3600)
+                await ctx.channel.set_permissions(member, send_messages=True)
+            return
+    await ctx.send("需要權限")
+
+@bot.command()
+async def 指令表(ctx):
+    await ctx.send("/三色豆風險:  查看三色豆風險\n\n/違規點數:  查看當前違規點數\n\n/違規記點(需有權限):  使用方法  {  /違規記點 @member  }\n\n/ping:  查看當前機器人延遲")
+
+@bot.command()
+async def good(ctx, member: discord.Member):
+    channel = bot.get_channel(1213087905984028732)
+    await channel.set_permissions(member, read_messages=True)
 
 bot.run(jdata['TOKEN'])
